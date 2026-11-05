@@ -1,0 +1,15 @@
+{
+  "name": "recipe-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Full-stack recipe website with React, NestJS, and Strapi CMS",
+  "scripts": {
+    "start": "./start.sh",
+    "dev": "./start.sh",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "cms:dev": "npm --prefix cms run develop",
+    "backend:dev": "npm --prefix backend run start:dev",
+    "frontend:dev": "npm --prefix frontend run dev"
+  }
+}

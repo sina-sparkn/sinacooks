@@ -31,7 +31,26 @@ PostgreSQL database "app"                                  PostgreSQL database "
 
 ---
 
-## Quick Start / Setup
+## ⚡ One-Command Automated Startup
+
+To start the whole stack step-by-step automatically (PostgreSQL Database → Strapi CMS → NestJS API → React Frontend):
+
+```bash
+./start.sh
+```
+*(or `npm start` / `npm run dev`)*
+
+The script automatically:
+1. Ensures all `.env` files are present.
+2. Starts the PostgreSQL 18 container and waits until it accepts connections on port 5432.
+3. Launches the Strapi CMS dev server in background and waits until it is responsive on port 1337.
+4. Boots the NestJS API backend and waits until health check succeeds on port 3000.
+5. Launches the React Frontend with hot reloading on port 5173.
+6. Handles `Ctrl+C` to cleanly terminate all running server processes.
+
+---
+
+## Manual Step-by-Step Setup
 
 ### 1. Database
 ```bash
