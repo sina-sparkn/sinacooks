@@ -6,7 +6,6 @@ import { describe, expect, it, beforeAll, afterAll } from 'vitest';
 import { AppModule } from '../src/app.module.js';
 import { CmsService } from '../src/cms/cms.service.js';
 import { PrismaService } from '../src/prisma/prisma.service.js';
-import argon2 from 'argon2';
 
 describe('Recipe Site API (E2E)', () => {
   let app: INestApplication;

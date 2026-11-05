@@ -1,11 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   mapCategory,
-  mapIngredientLine,
   mapMedia,
   mapRecipe,
   mapRecipeSummary,
-  mapStep,
   mapTag,
 } from './cms.mapper.js';
 
