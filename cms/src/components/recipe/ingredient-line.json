@@ -1,0 +1,42 @@
+{
+  "collectionName": "components_recipe_ingredient_lines",
+  "info": {
+    "displayName": "IngredientLine",
+    "description": "An ingredient line with quantity and unit"
+  },
+  "options": {},
+  "attributes": {
+    "quantity": {
+      "type": "decimal"
+    },
+    "unit": {
+      "type": "enumeration",
+      "enum": [
+        "g",
+        "kg",
+        "ml",
+        "l",
+        "tsp",
+        "tbsp",
+        "cup",
+        "oz",
+        "lb",
+        "piece",
+        "pinch",
+        "clove",
+        "slice"
+      ]
+    },
+    "ingredient": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::ingredient.ingredient"
+    },
+    "note": {
+      "type": "string"
+    },
+    "group": {
+      "type": "string"
+    }
+  }
+}

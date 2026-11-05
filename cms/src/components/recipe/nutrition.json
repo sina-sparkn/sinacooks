@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_recipe_nutritions",
+  "info": {
+    "displayName": "Nutrition",
+    "description": "Nutritional info per serving"
+  },
+  "options": {},
+  "attributes": {
+    "calories": {
+      "type": "decimal"
+    },
+    "proteinGrams": {
+      "type": "decimal"
+    },
+    "carbsGrams": {
+      "type": "decimal"
+    },
+    "fatGrams": {
+      "type": "decimal"
+    },
+    "fiberGrams": {
+      "type": "decimal"
+    }
+  }
+}

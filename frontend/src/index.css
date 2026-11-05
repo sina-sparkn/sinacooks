@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary-50: #fef8ee;
+  --color-primary-100: #feeed5;
+  --color-primary-200: #fcd9aa;
+  --color-primary-300: #f9bc74;
+  --color-primary-400: #f5963c;
+  --color-primary-500: #f07413;
+  --color-primary-600: #e15809;
+  --color-primary-700: #bb410b;
+  --color-primary-800: #943410;
+  --color-primary-900: #772d10;
+
+  --color-accent-50: #f0fdf4;
+  --color-accent-100: #dcfce7;
+  --color-accent-500: #22c55e;
+  --color-accent-600: #16a34a;
+
+  --font-serif:
+    "Playfair Display", Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
+@layer base {
+  body {
+    @apply bg-stone-50 text-stone-900 font-sans antialiased min-h-screen selection:bg-amber-200 selection:text-amber-900;
+  }
+}
+
+@media print {
+  header,
+  footer,
+  nav,
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}

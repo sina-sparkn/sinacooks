@@ -1,0 +1,98 @@
+{
+  "kind": "collectionType",
+  "collectionName": "recipes",
+  "info": {
+    "singularName": "recipe",
+    "pluralName": "recipes",
+    "displayName": "Recipe",
+    "description": "Culinary recipes"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "cover": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "gallery": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "prepTimeMinutes": {
+      "type": "integer",
+      "min": 0
+    },
+    "cookTimeMinutes": {
+      "type": "integer",
+      "min": 0
+    },
+    "totalTimeMinutes": {
+      "type": "integer"
+    },
+    "servings": {
+      "type": "integer",
+      "required": true,
+      "min": 1,
+      "default": 4
+    },
+    "difficulty": {
+      "type": "enumeration",
+      "enum": ["easy", "medium", "hard"]
+    },
+    "ingredients": {
+      "type": "component",
+      "repeatable": true,
+      "component": "recipe.ingredient-line"
+    },
+    "steps": {
+      "type": "component",
+      "repeatable": true,
+      "component": "recipe.step"
+    },
+    "nutrition": {
+      "type": "component",
+      "repeatable": false,
+      "component": "recipe.nutrition"
+    },
+    "notes": {
+      "type": "blocks"
+    },
+    "sourceUrl": {
+      "type": "string"
+    },
+    "featured": {
+      "type": "boolean",
+      "default": false
+    },
+    "categories": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::category.category",
+      "inversedBy": "recipes"
+    },
+    "tags": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::tag.tag",
+      "inversedBy": "recipes"
+    }
+  }
+}

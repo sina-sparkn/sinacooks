@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_recipe_steps",
+  "info": {
+    "displayName": "Step",
+    "description": "A single recipe step"
+  },
+  "options": {},
+  "attributes": {
+    "instruction": {
+      "type": "text",
+      "required": true
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "timerMinutes": {
+      "type": "integer"
+    }
+  }
+}
