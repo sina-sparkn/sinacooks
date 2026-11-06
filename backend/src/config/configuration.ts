@@ -8,6 +8,8 @@ export default () => ({
     jwtSecret: process.env.JWT_SECRET || 'default_secret',
     jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
     cookieName: process.env.COOKIE_NAME || 'recipe_token',
+    cookieSameSite: (process.env.COOKIE_SAME_SITE as 'lax' | 'strict' | 'none') || (process.env.NODE_ENV === 'production' ? 'none' : 'lax'),
+    cookieSecure: process.env.COOKIE_SECURE ? process.env.COOKIE_SECURE === 'true' : process.env.NODE_ENV === 'production',
   },
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
   cms: {

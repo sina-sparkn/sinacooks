@@ -23,6 +23,8 @@ import type { AuthenticatedUser } from '../common/decorators/current-user.decora
 export class AuthController {
   private readonly cookieName: string;
   private readonly isProd: boolean;
+  private readonly cookieSameSite: 'lax' | 'strict' | 'none';
+  private readonly cookieSecure: boolean;
 
   constructor(
     private readonly authService: AuthService,
@@ -33,13 +35,21 @@ export class AuthController {
       'recipe_token',
     );
     this.isProd = this.config.get<string>('nodeEnv') === 'production';
+    this.cookieSameSite = this.config.get<'lax' | 'strict' | 'none'>(
+      'auth.cookieSameSite',
+      this.isProd ? 'none' : 'lax',
+    );
+    this.cookieSecure = this.config.get<boolean>(
+      'auth.cookieSecure',
+      this.isProd,
+    );
   }
 
   private setAuthCookie(res: Response, token: string) {
     res.cookie(this.cookieName, token, {
       httpOnly: true,
-      secure: this.isProd,
-      sameSite: 'lax',
+      secure: this.cookieSecure,
+      sameSite: this.cookieSameSite,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       path: '/',
     });
@@ -78,8 +88,8 @@ export class AuthController {
   async logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie(this.cookieName, {
       httpOnly: true,
-      secure: this.isProd,
-      sameSite: 'lax',
+      secure: this.cookieSecure,
+      sameSite: this.cookieSameSite,
       path: '/',
     });
     return { success: true, message: 'Logged out successfully' };

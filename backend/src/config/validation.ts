@@ -9,6 +9,8 @@ export const envValidationSchema = Joi.object({
   JWT_SECRET: Joi.string().required(),
   JWT_EXPIRES_IN: Joi.string().default('7d'),
   COOKIE_NAME: Joi.string().default('recipe_token'),
+  COOKIE_SAME_SITE: Joi.string().valid('lax', 'strict', 'none').default('lax'),
+  COOKIE_SECURE: Joi.boolean().default(false),
   CLIENT_URL: Joi.string().default('http://localhost:5173'),
   STRAPI_URL: Joi.string().default('http://localhost:1337'),
   STRAPI_PUBLIC_URL: Joi.string().default('http://localhost:1337'),

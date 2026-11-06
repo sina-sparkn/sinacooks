@@ -444,7 +444,7 @@ export async function runSeed(strapi: Core.Strapi) {
         cookTimeMinutes: recipe.cookTimeMinutes,
         totalTimeMinutes: recipe.prepTimeMinutes + recipe.cookTimeMinutes,
         servings: recipe.servings,
-        difficulty: recipe.difficulty as any,
+        difficulty: recipe.difficulty,
         featured: recipe.featured,
         categories: categoryIds,
         tags: tagIds,
@@ -452,7 +452,7 @@ export async function runSeed(strapi: Core.Strapi) {
         steps: recipe.steps,
         nutrition: recipe.nutrition,
         notes: recipe.notes,
-      },
+      } as any,
       status: 'published', // publish directly
     });
   }

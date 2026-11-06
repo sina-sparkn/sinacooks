@@ -110,6 +110,8 @@ Let `create-strapi` generate the dependency list for the CMS (it includes Strapi
 | `zod` | 4.6.7 | |
 | `@hookform/resolvers` | 7.0.3 | Supports Zod 4 |
 | `@strapi/blocks-react-renderer` | 1.0.2 | Renders Strapi rich-text Blocks |
+| `gsap`, `@gsap/react` | 3.15.1, 2.1.2 | GSAP core, timeline, ScrollTrigger, Flip |
+| `lenis` | 1.3.27 | Smooth scrolling |
 | `vitest`, `@vitest/coverage-v8` (dev) | 5.1.0 | |
 | `jsdom` (dev) | 30.1.3 | |
 | `@testing-library/react` (dev) | 16.3.3 | Also install its peer `@testing-library/dom` |

@@ -1,0 +1,12 @@
+node_modules
+build
+.tmp
+.cache
+.strapi
+public/uploads
+.env
+.env.*
+!.env.example
+*.log
+npm-debug.log*
+.git

@@ -1,4 +1,6 @@
 import { Link } from "react-router";
+import { UtensilsCrossed } from "lucide-react";
+import { useTranslation } from "../features/i18n/I18nContext.js";
 
 interface EmptyStateProps {
   title?: string;
@@ -8,27 +10,44 @@ interface EmptyStateProps {
 }
 
 export function EmptyState({
-  title = "No recipes found",
-  message = "Try adjusting your search or filters to discover other delicious dishes.",
-  actionText = "Browse all recipes",
+  title,
+  message,
+  actionText,
   actionHref = "/recipes",
 }: EmptyStateProps) {
+  const { t } = useTranslation();
+
+  const finalTitle = title || t("recipes.noRecipes");
+  const finalMessage = message || t("recipes.noRecipesDesc");
+  const finalActionText = actionText || t("recipes.resetAllFilters");
+
   return (
-    <div className="text-center py-16 px-4 max-w-md mx-auto">
-      <div className="w-20 h-20 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
-        🍲
+    <div className="text-center py-20 px-6 max-w-md mx-auto space-y-5 bg-white/60 rounded-[32px] border border-stone-200/80 p-8 shadow-xs">
+      <div className="w-16 h-16 rounded-full bg-sand/60 border border-stone-200 text-terracotta flex items-center justify-center mx-auto">
+        <UtensilsCrossed
+          className="w-7 h-7"
+          strokeWidth={1.8}
+          aria-hidden="true"
+        />
       </div>
-      <h3 className="text-2xl font-bold text-stone-800 mb-2 font-serif">
-        {title}
-      </h3>
-      <p className="text-stone-600 mb-6 text-sm leading-relaxed">{message}</p>
+      <div className="space-y-2">
+        <h3 className="font-serif text-2xl font-normal text-stone-900">
+          {finalTitle}
+        </h3>
+        <p className="font-sans text-stone-600 text-xs sm:text-sm leading-relaxed">
+          {finalMessage}
+        </p>
+      </div>
       {actionHref && (
-        <Link
-          to={actionHref}
-          className="inline-block px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-xl transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
-        >
-          {actionText}
-        </Link>
+        <div className="pt-2">
+          <Link
+            to={actionHref}
+            className="inline-block px-6 py-3 bg-[#171513] hover:bg-black text-[#FBF8F3] font-sans font-semibold text-xs uppercase tracking-wider rounded-full transition-all shadow-md hover:scale-105 active:scale-95 cursor-pointer"
+            data-magnetic="true"
+          >
+            {finalActionText}
+          </Link>
+        </div>
       )}
     </div>
   );

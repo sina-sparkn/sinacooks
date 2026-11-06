@@ -7,17 +7,21 @@ import { RecipeGrid } from "../components/RecipeGrid.js";
 import { RecipeCardSkeleton } from "../components/Skeleton.js";
 import { ErrorState } from "../components/ErrorState.js";
 import { EmptyState } from "../components/EmptyState.js";
+import { useTranslation } from "../features/i18n/I18nContext.js";
 
 export function CategoryPage() {
   const { slug } = useParams<{ slug: string }>();
   const { data: categories = [] } = useCategories();
   const currentCategory = categories.find((c) => c.slug === slug);
+  const { t, tCategory, formatNum } = useTranslation();
+
+  const categoryName = tCategory(slug, currentCategory?.name);
 
   useEffect(() => {
-    if (currentCategory) {
-      document.title = `${currentCategory.name} Recipes | TasteCraft`;
+    if (categoryName) {
+      document.title = `${categoryName} | sinacooks Archive`;
     }
-  }, [currentCategory]);
+  }, [categoryName]);
 
   const { data, isLoading, isError, refetch } = useRecipes({
     category: slug,
@@ -25,55 +29,73 @@ export function CategoryPage() {
   });
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10 pb-16">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-amber-800 to-amber-900 text-white rounded-3xl p-8 sm:p-12 shadow-sm">
-        <div className="max-w-xl space-y-3">
+      <div className="bg-[#171513] text-[#FBF8F3] rounded-[36px] p-8 sm:p-14 shadow-lg relative overflow-hidden">
+        <div className="relative z-10 max-w-2xl space-y-4">
           <nav
             aria-label="Breadcrumb"
-            className="text-xs text-amber-200/80 font-medium"
+            className="font-mono text-xs text-white/60 font-medium"
           >
             <Link to="/" className="hover:text-white">
-              Home
+              {t("header.home")}
             </Link>
             <span className="mx-2">/</span>
             <Link to="/recipes" className="hover:text-white">
-              Recipes
+              {t("header.recipes")}
             </Link>
             <span className="mx-2">/</span>
-            <span className="text-white font-semibold capitalize">{slug}</span>
+            <span className="text-terracotta font-semibold capitalize">
+              {categoryName}
+            </span>
           </nav>
-          <h1 className="font-serif text-3xl sm:text-5xl font-bold capitalize">
-            {currentCategory?.name || slug} Recipes
+          <span className="font-mono text-xs uppercase tracking-widest text-terracotta font-semibold">
+            {t("categoryPage.categoryMonograph")}
+          </span>
+          <h1 className="font-serif text-4xl sm:text-6xl text-white font-normal capitalize tracking-tight">
+            {t("categoryPage.recipesTitle", { category: categoryName })}
           </h1>
           {currentCategory?.description && (
-            <p className="text-amber-100 text-sm sm:text-base leading-relaxed">
+            <p className="font-sans text-white/70 text-sm sm:text-base leading-relaxed">
               {currentCategory.description}
             </p>
           )}
         </div>
+
+        {/* Decorative backdrop ring */}
+        <div className="absolute end-0 top-0 w-96 h-96 rounded-full border border-white/5 pointer-events-none translate-x-20 -translate-y-20" />
       </div>
 
-      {/* Recipes */}
+      {/* Content */}
       {isLoading ? (
         <RecipeGrid>
-          {Array.from({ length: 6 }).map((_, i) => (
-            <RecipeCardSkeleton key={i} />
+          {Array.from({ length: 8 }).map((_, idx) => (
+            <RecipeCardSkeleton key={idx} />
           ))}
         </RecipeGrid>
       ) : isError ? (
         <ErrorState onRetry={() => refetch()} />
       ) : data?.items && data.items.length > 0 ? (
-        <RecipeGrid>
-          {data.items.map((recipe) => (
-            <RecipeCard key={recipe.id} recipe={recipe} />
-          ))}
-        </RecipeGrid>
+        <div className="space-y-6">
+          <p className="font-mono text-xs text-stone-500">
+            {t("categoryPage.archivedCount", {
+              count: formatNum(data.items.length),
+              category: categoryName,
+            })}
+          </p>
+          <RecipeGrid>
+            {data.items.map((recipe) => (
+              <RecipeCard key={recipe.id} recipe={recipe} />
+            ))}
+          </RecipeGrid>
+        </div>
       ) : (
         <EmptyState
-          title={`No ${slug} recipes found`}
-          message="We have not added recipes in this category yet. Check back soon!"
-          actionText="Explore other recipes"
+          title={t("categoryPage.noCategoryRecipes", {
+            category: categoryName,
+          })}
+          message={t("categoryPage.noCategoryRecipesDesc")}
+          actionText={t("categoryPage.exploreAll")}
           actionHref="/recipes"
         />
       )}

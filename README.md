@@ -31,7 +31,7 @@ PostgreSQL database "app"                                  PostgreSQL database "
 
 ---
 
-## ⚡ One-Command Automated Startup
+## One-Command Automated Startup
 
 To start the whole stack step-by-step automatically (PostgreSQL Database → Strapi CMS → NestJS API → React Frontend):
 

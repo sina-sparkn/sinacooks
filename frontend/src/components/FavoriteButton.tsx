@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useRef } from "react";
 import { useNavigate, useLocation } from "react-router";
+import { Heart } from "lucide-react";
 import { useAuth } from "../features/auth/useAuth.js";
 import { useFavoriteIds, useToggleFavorite } from "../api/favorites.js";
+import { gsap } from "../lib/gsap.js";
+import { useTranslation } from "../features/i18n/I18nContext.js";
 
 interface FavoriteButtonProps {
   recipeId: string;
@@ -15,6 +18,8 @@ export function FavoriteButton({
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const iconRef = useRef<SVGSVGElement>(null);
+  const { isRTL } = useTranslation();
 
   const { data: favoriteIds = [] } = useFavoriteIds(Boolean(user));
   const toggleFavorite = useToggleFavorite();
@@ -31,31 +36,62 @@ export function FavoriteButton({
       return;
     }
 
+    // GSAP elastic scale burst animation
+    if (iconRef.current) {
+      gsap
+        .timeline()
+        .to(iconRef.current, {
+          scale: 1.45,
+          duration: 0.15,
+          ease: "power2.out",
+        })
+        .to(iconRef.current, {
+          scale: 1,
+          duration: 0.45,
+          ease: "elastic.out(1.3, 0.4)",
+        });
+    }
+
     toggleFavorite.mutate({ recipeId, isFavorited });
   };
+
+  const cursorLabel = isFavorited
+    ? isRTL
+      ? "حذف نشان"
+      : "Remove Favorite"
+    : isRTL
+      ? "نشان کردن"
+      : "Add to Favorite";
+
+  const ariaLabel = isFavorited
+    ? isRTL
+      ? "حذف از نشان‌شده‌ها"
+      : "Remove from saved recipes"
+    : isRTL
+      ? "نشان کردن این دستور"
+      : "Save this recipe";
 
   return (
     <button
       type="button"
       onClick={handleClick}
-      aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
-      className={`p-2.5 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500 ${
-        isFavorited
-          ? "bg-red-50 text-red-500 hover:bg-red-100 shadow-sm"
-          : "bg-white/80 hover:bg-white text-stone-500 hover:text-red-500 shadow-sm backdrop-blur-sm"
+      aria-label={ariaLabel}
+      data-cursor="favorite"
+      data-cursor-text={cursorLabel}
+      data-magnetic="true"
+      className={`p-2.5 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-terracotta bg-white/95 backdrop-blur-md shadow-[0_4px_16px_rgba(23,21,19,0.08)] border border-stone-200/60 hover:shadow-md cursor-pointer ${
+        isFavorited ? "text-terracotta" : "text-stone-400 hover:text-terracotta"
       } ${className}`}
     >
-      <svg
-        className={`w-5 h-5 transition-transform active:scale-125 ${isFavorited ? "fill-current" : "fill-none stroke-current"}`}
-        strokeWidth="2"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-        />
-      </svg>
+      <Heart
+        ref={iconRef}
+        className={`w-4 h-4 transition-colors ${
+          isFavorited
+            ? "fill-terracotta stroke-terracotta"
+            : "fill-none stroke-current"
+        }`}
+        strokeWidth={2}
+      />
     </button>
   );
 }

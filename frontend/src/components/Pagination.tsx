@@ -1,3 +1,6 @@
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "../features/i18n/I18nContext.js";
+
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
@@ -9,22 +12,28 @@ export function Pagination({
   totalPages,
   onPageChange,
 }: PaginationProps) {
+  const { t, formatNum, isRTL } = useTranslation();
   if (totalPages <= 1) return null;
 
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
+  const PrevChevron = isRTL ? ChevronRight : ChevronLeft;
+  const NextChevron = isRTL ? ChevronLeft : ChevronRight;
+
   return (
     <nav
-      aria-label="Pagination"
-      className="flex items-center justify-center gap-1.5 mt-10"
+      aria-label="Pagination Navigation"
+      className="flex items-center justify-center gap-2 mt-12 font-mono text-xs"
     >
       <button
         type="button"
         disabled={currentPage <= 1}
         onClick={() => onPageChange(currentPage - 1)}
-        className="px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-stone-700 hover:bg-stone-50 disabled:opacity-40 disabled:cursor-not-allowed text-sm font-medium transition-colors"
+        className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border border-stone-200 bg-white text-stone-700 hover:bg-stone-50 disabled:opacity-30 disabled:cursor-not-allowed uppercase tracking-wider transition-colors shadow-xs cursor-pointer"
+        data-magnetic="true"
       >
-        Previous
+        <PrevChevron className="w-4 h-4" />
+        <span>{t("common.previous")}</span>
       </button>
 
       {pages.map((p) => {
@@ -39,18 +48,18 @@ export function Pagination({
               key={p}
               type="button"
               onClick={() => onPageChange(p)}
-              className={`w-9 h-9 rounded-xl text-sm font-semibold transition-colors ${
+              className={`w-9 h-9 rounded-full font-bold transition-all cursor-pointer ${
                 p === currentPage
-                  ? "bg-amber-600 text-white shadow-xs"
-                  : "bg-white border border-stone-200 text-stone-700 hover:bg-stone-50"
+                  ? "bg-terracotta text-white shadow-xs"
+                  : "bg-white border border-stone-200 text-stone-700 hover:bg-stone-100"
               }`}
             >
-              {p}
+              {formatNum(p)}
             </button>
           );
         } else if (p === currentPage - 2 || p === currentPage + 2) {
           return (
-            <span key={p} className="px-1 text-stone-400">
+            <span key={p} className="px-1 text-stone-400 select-none">
               ...
             </span>
           );
@@ -62,9 +71,11 @@ export function Pagination({
         type="button"
         disabled={currentPage >= totalPages}
         onClick={() => onPageChange(currentPage + 1)}
-        className="px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-stone-700 hover:bg-stone-50 disabled:opacity-40 disabled:cursor-not-allowed text-sm font-medium transition-colors"
+        className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border border-stone-200 bg-white text-stone-700 hover:bg-stone-50 disabled:opacity-30 disabled:cursor-not-allowed uppercase tracking-wider transition-colors shadow-xs cursor-pointer"
+        data-magnetic="true"
       >
-        Next
+        <span>{t("common.next")}</span>
+        <NextChevron className="w-4 h-4" />
       </button>
     </nav>
   );

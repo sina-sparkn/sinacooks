@@ -27,7 +27,22 @@ async function bootstrap() {
       callback: (err: Error | null, allow?: boolean) => void,
     ) => {
       // Allow requests with no origin (e.g. mobile apps, curl, or same-origin)
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+      const isAllowed = allowedOrigins.some((allowed) => {
+        if (allowed === '*' || allowed === origin) return true;
+        if (allowed.includes('*')) {
+          const regex = new RegExp(
+            '^' + allowed.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$',
+          );
+          return regex.test(origin);
+        }
+        return false;
+      });
+
+      if (isAllowed) {
         callback(null, true);
       } else {
         callback(new Error(`Origin ${origin} not allowed by CORS`));
@@ -67,10 +82,10 @@ async function bootstrap() {
 
   const port = config.get<number>('port', 3000);
   await app.listen(port);
-  console.log(`🚀 Recipe API is running on http://localhost:${port}/api`);
+  console.log(`Recipe API is running on http://localhost:${port}/api`);
   if (nodeEnv !== 'production') {
     console.log(
-      `📚 Swagger documentation available at http://localhost:${port}/docs`,
+      `Swagger documentation available at http://localhost:${port}/docs`,
     );
   }
 }

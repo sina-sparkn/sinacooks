@@ -1,5 +1,8 @@
+import { useState } from "react";
+import { Check } from "lucide-react";
 import type { IngredientLine } from "../api/types.js";
 import { formatQuantity, scaleQuantity } from "../lib/scaler.js";
+import { useTranslation } from "../features/i18n/I18nContext.js";
 
 interface IngredientListProps {
   ingredients: IngredientLine[];
@@ -12,6 +15,15 @@ export function IngredientList({
   baseServings,
   currentServings,
 }: IngredientListProps) {
+  const [checkedItems, setCheckedItems] = useState<string[]>([]);
+  const { tUnit, formatNum } = useTranslation();
+
+  const toggleChecked = (id: string) => {
+    setCheckedItems((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
+    );
+  };
+
   // Group ingredients by group header if present
   const groups: { name: string | null; items: IngredientLine[] }[] = [];
   const map = new Map<string | null, IngredientLine[]>();
@@ -31,12 +43,14 @@ export function IngredientList({
       {groups.map((group, gIdx) => (
         <div key={gIdx} className="space-y-3">
           {group.name && (
-            <h4 className="text-sm font-semibold uppercase tracking-wider text-amber-800 border-b border-amber-100 pb-1">
+            <h4 className="font-mono text-xs font-semibold uppercase tracking-widest text-terracotta border-b border-terracotta/20 pb-1.5 pt-2">
               {group.name}
             </h4>
           )}
           <ul className="divide-y divide-stone-100">
             {group.items.map((ing, idx) => {
+              const itemId = `${gIdx}-${idx}-${ing.name}`;
+              const isChecked = checkedItems.includes(itemId);
               const scaled = scaleQuantity(
                 ing.quantity,
                 baseServings,
@@ -47,25 +61,57 @@ export function IngredientList({
               return (
                 <li
                   key={idx}
-                  className="py-2.5 flex items-start gap-3 text-stone-800 text-sm hover:bg-stone-50/60 px-2 rounded-lg transition-colors"
+                  onClick={() => toggleChecked(itemId)}
+                  className={`py-3 px-3 rounded-xl flex items-start gap-3.5 cursor-pointer transition-colors ${
+                    isChecked
+                      ? "bg-stone-100/60 opacity-60"
+                      : "hover:bg-sand/30"
+                  }`}
                 >
-                  <span className="w-2 h-2 rounded-full bg-amber-400 mt-2 shrink-0" />
-                  <div className="flex-1 flex flex-wrap items-baseline gap-x-1.5">
+                  {/* Subtle checklist circle */}
+                  <div
+                    className={`w-4 h-4 rounded-md border mt-0.5 flex items-center justify-center shrink-0 transition-colors ${
+                      isChecked
+                        ? "bg-terracotta border-terracotta text-white"
+                        : "border-stone-300 bg-white"
+                    }`}
+                  >
+                    {isChecked && (
+                      <Check
+                        className="w-2.5 h-2.5 stroke-[3]"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </div>
+
+                  <div className="flex-1 flex flex-wrap items-baseline gap-x-2">
                     {formattedQty && (
-                      <span className="font-semibold text-stone-900">
-                        {formattedQty}
+                      <span
+                        className={`font-mono font-bold text-stone-900 ${
+                          isChecked ? "line-through text-stone-400" : ""
+                        }`}
+                      >
+                        {formatNum(formattedQty)}
                       </span>
                     )}
                     {ing.unit && (
-                      <span className="text-stone-600 font-medium">
-                        {ing.unit}
+                      <span
+                        className={`font-mono text-xs text-stone-600 font-medium ${
+                          isChecked ? "line-through text-stone-400" : ""
+                        }`}
+                      >
+                        {tUnit(ing.unit)}
                       </span>
                     )}
-                    <span className="text-stone-900 font-medium">
+                    <span
+                      className={`font-sans font-medium text-stone-900 ${
+                        isChecked ? "line-through text-stone-400" : ""
+                      }`}
+                    >
                       {ing.name}
                     </span>
                     {ing.note && (
-                      <span className="text-stone-500 text-xs italic">
+                      <span className="font-sans text-stone-500 text-xs italic">
                         ({ing.note})
                       </span>
                     )}

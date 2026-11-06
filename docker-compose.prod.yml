@@ -1,0 +1,81 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: recipe_postgres_prod
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-app}
+      POSTGRES_USER: ${POSTGRES_USER:-recipes}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-postgres-password}
+    volumes:
+      - pgdata_prod:/var/lib/postgresql
+      - ./scripts/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-recipes} -d ${POSTGRES_DB:-app}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  cms:
+    build:
+      context: ./cms
+      dockerfile: Dockerfile
+    container_name: recipe_cms_prod
+    restart: always
+    environment:
+      HOST: 0.0.0.0
+      PORT: 1337
+      APP_KEYS: ${APP_KEYS:-key1,key2,key3,key4}
+      API_TOKEN_SALT: ${API_TOKEN_SALT:-secret-token-salt}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET:-secret-admin-jwt}
+      TRANSFER_TOKEN_SALT: ${TRANSFER_TOKEN_SALT:-secret-transfer-salt}
+      JWT_SECRET: ${CMS_JWT_SECRET:-secret-cms-jwt}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-secret-encryption-key-32chars!!}
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: cms
+      DATABASE_USERNAME: ${POSTGRES_USER:-recipes}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-change-me-postgres-password}
+      DATABASE_SSL: "false"
+      SEED_ON_BOOT: ${SEED_ON_BOOT:-false}
+    volumes:
+      - cms_uploads:/opt/app/public/uploads
+    ports:
+      - "1337:1337"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: recipe_backend_prod
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-recipes}:${POSTGRES_PASSWORD:-change-me-postgres-password}@postgres:5432/app?schema=public
+      JWT_SECRET: ${JWT_SECRET:-change-me-backend-jwt-secret-min-32-chars}
+      JWT_EXPIRES_IN: 7d
+      COOKIE_NAME: recipe_token
+      COOKIE_SAME_SITE: none
+      COOKIE_SECURE: "true"
+      CLIENT_URL: ${CLIENT_URL:-http://localhost:5173,https://*.vercel.app}
+      STRAPI_URL: http://cms:1337
+      STRAPI_PUBLIC_URL: ${STRAPI_PUBLIC_URL:-http://localhost:1337}
+      STRAPI_API_TOKEN: ${STRAPI_API_TOKEN:-}
+      STRAPI_WEBHOOK_SECRET: ${STRAPI_WEBHOOK_SECRET:-production-webhook-secret}
+      CACHE_TTL_SECONDS: 60
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      cms:
+        condition: service_started
+
+volumes:
+  pgdata_prod:
+  cms_uploads:

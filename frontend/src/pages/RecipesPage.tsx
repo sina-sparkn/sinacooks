@@ -4,19 +4,23 @@ import { useRecipes } from "../api/recipes.js";
 import { useCategories } from "../api/categories.js";
 import { useTags } from "../api/tags.js";
 import { SearchBar } from "../components/SearchBar.js";
-import { FilterPanel } from "../components/FilterPanel.js";
+import { FilterPanel, type FilterValues } from "../components/FilterPanel.js";
 import { RecipeCard } from "../components/RecipeCard.js";
 import { RecipeGrid } from "../components/RecipeGrid.js";
 import { Pagination } from "../components/Pagination.js";
 import { RecipeCardSkeleton } from "../components/Skeleton.js";
 import { ErrorState } from "../components/ErrorState.js";
 import { EmptyState } from "../components/EmptyState.js";
+import { useLenis } from "../components/useLenis.js";
+import { useTranslation } from "../features/i18n/I18nContext.js";
 
 export function RecipesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { scrollTo } = useLenis();
+  const { t, tCategory, formatNum } = useTranslation();
 
   useEffect(() => {
-    document.title = "All Recipes | TasteCraft";
+    document.title = "Recipe Archive & Index | sinacooks";
   }, []);
 
   // Parse filters from URL
@@ -65,76 +69,78 @@ export function RecipesPage() {
     });
   };
 
-  const handleCategoryChange = (cat: string | undefined) => {
+  const handleApplyFilters = (filters: FilterValues) => {
     updateParams((p) => {
-      if (cat) p.set("category", cat);
-      else p.delete("category");
-      p.set("page", "1");
-    });
-  };
-
-  const handleTagToggle = (tagSlug: string) => {
-    updateParams((p) => {
-      const currentTags = p.getAll("tag");
-      p.delete("tag");
-      if (currentTags.includes(tagSlug)) {
-        currentTags
-          .filter((t) => t !== tagSlug)
-          .forEach((t) => p.append("tag", t));
+      if (filters.category) {
+        p.set("category", filters.category);
       } else {
-        [...currentTags, tagSlug].forEach((t) => p.append("tag", t));
+        p.delete("category");
       }
-      p.set("page", "1");
-    });
-  };
 
-  const handleDifficultyChange = (
-    diff: "easy" | "medium" | "hard" | undefined,
-  ) => {
-    updateParams((p) => {
-      if (diff) p.set("difficulty", diff);
-      else p.delete("difficulty");
-      p.set("page", "1");
-    });
-  };
+      if (filters.difficulty) {
+        p.set("difficulty", filters.difficulty);
+      } else {
+        p.delete("difficulty");
+      }
 
-  const handleMaxTimeChange = (time: number | undefined) => {
-    updateParams((p) => {
-      if (time) p.set("maxTime", String(time));
-      else p.delete("maxTime");
+      if (filters.maxTime) {
+        p.set("maxTime", String(filters.maxTime));
+      } else {
+        p.delete("maxTime");
+      }
+
+      p.delete("tag");
+      filters.tags.forEach((t) => p.append("tag", t));
+
       p.set("page", "1");
     });
   };
 
   const handleResetFilters = () => {
-    setSearchParams(new URLSearchParams());
+    updateParams((p) => {
+      p.delete("category");
+      p.delete("difficulty");
+      p.delete("maxTime");
+      p.delete("tag");
+      p.set("page", "1");
+    });
   };
 
   const handlePageChange = (newPage: number) => {
     updateParams((p) => {
       p.set("page", String(newPage));
     });
+    scrollTo(0);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="font-serif text-3xl sm:text-4xl font-bold text-stone-900">
-          Discover Recipes
+    <div className="space-y-10 pb-16">
+      {/* Header Banner */}
+      <div className="space-y-3 border-b border-stone-200 pb-8">
+        <span className="font-mono text-xs uppercase tracking-widest text-terracotta font-semibold">
+          {t("recipes.badge")}
+        </span>
+        <h1 className="font-serif text-4xl sm:text-6xl text-stone-900 font-normal">
+          {t("recipes.title")}
         </h1>
-        <p className="text-stone-600 text-sm sm:text-base mt-1">
-          Explore delicious meals, snacks, and treats tested for culinary
-          success.
+        <p className="font-sans text-stone-600 text-sm sm:text-base max-w-xl leading-relaxed">
+          {t("recipes.desc")}
         </p>
       </div>
 
       {/* Main Grid: Sidebar Filters + Recipe Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
-        {/* Filter Sidebar */}
-        <div className="lg:col-span-1 space-y-6">
-          <SearchBar initialValue={q} onSearch={handleSearch} />
+      <div className="grid relative grid-cols-1 lg:grid-cols-4 gap-10 items-start">
+        {/* Filter Sidebar - Sticky on desktop below floating header */}
+        <div
+          data-lenis-prevent
+          className="lg:sticky lg:top-24 lg:self-start lg:col-span-1 space-y-6 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto scrollbar-none pr-1"
+        >
+          <SearchBar
+            initialValue={q}
+            onSearch={handleSearch}
+            placeholder={t("recipes.searchPlaceholder")}
+          />
           <FilterPanel
             categories={categories}
             tags={availableTags}
@@ -142,10 +148,7 @@ export function RecipesPage() {
             selectedTags={tags}
             selectedDifficulty={difficulty}
             maxTime={maxTime}
-            onCategoryChange={handleCategoryChange}
-            onTagToggle={handleTagToggle}
-            onDifficultyChange={handleDifficultyChange}
-            onMaxTimeChange={handleMaxTimeChange}
+            onApply={handleApplyFilters}
             onReset={handleResetFilters}
           />
         </div>
@@ -161,15 +164,26 @@ export function RecipesPage() {
           ) : isError ? (
             <ErrorState onRetry={() => refetch()} />
           ) : recipesData?.items && recipesData.items.length > 0 ? (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between text-xs text-stone-500 font-medium">
+            <div className="space-y-8">
+              <div className="flex items-center justify-between text-xs font-mono text-stone-500">
                 <span>
-                  Showing {(page - 1) * 12 + 1}–
-                  {Math.min(page * 12, recipesData.meta.total)} of{" "}
-                  {recipesData.meta.total} recipes
+                  {t("recipes.showingRecipes", {
+                    from: formatNum((page - 1) * 12 + 1),
+                    to: formatNum(Math.min(page * 12, recipesData.meta.total)),
+                    total: formatNum(recipesData.meta.total),
+                  })}
                 </span>
+                {category && (
+                  <span className="capitalize text-terracotta font-semibold">
+                    {t("recipes.categoryFilter", {
+                      category: tCategory(category),
+                    })}
+                  </span>
+                )}
               </div>
-              <RecipeGrid>
+
+              {/* Recipe Grid with Flip Layout Transitions */}
+              <RecipeGrid id="recipes-catalog-grid">
                 {recipesData.items.map((recipe) => (
                   <RecipeCard key={recipe.id} recipe={recipe} />
                 ))}
@@ -183,9 +197,9 @@ export function RecipesPage() {
             </div>
           ) : (
             <EmptyState
-              title="No recipes found"
-              message="No recipes match the selected filters or search terms. Try clearing some filters."
-              actionText="Reset All Filters"
+              title={t("recipes.noRecipes")}
+              message={t("recipes.noRecipesDesc")}
+              actionText={t("recipes.resetAllFilters")}
               actionHref="/recipes"
             />
           )}

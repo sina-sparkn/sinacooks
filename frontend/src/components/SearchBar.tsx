@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Search, X } from "lucide-react";
+import { useTranslation } from "../features/i18n/I18nContext.js";
 
 interface SearchBarProps {
   initialValue?: string;
@@ -10,11 +12,14 @@ interface SearchBarProps {
 export function SearchBar({
   initialValue = "",
   onSearch,
-  placeholder = "Search delicious recipes, ingredients...",
+  placeholder,
   className = "",
 }: SearchBarProps) {
+  const { t } = useTranslation();
   const [value, setValue] = useState(initialValue);
   const [prevInitial, setPrevInitial] = useState(initialValue);
+
+  const effectivePlaceholder = placeholder ?? t("recipes.searchPlaceholder");
 
   if (initialValue !== prevInitial) {
     setPrevInitial(initialValue);
@@ -33,27 +38,19 @@ export function SearchBar({
 
   return (
     <div className={`relative w-full ${className}`}>
-      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-          />
-        </svg>
+      <div className="absolute inset-y-0 start-0 ps-4 sm:ps-5 flex items-center pointer-events-none text-stone-400">
+        <Search
+          className="w-4 h-4 sm:w-5 sm:h-5 text-terracotta/70"
+          strokeWidth={2}
+          aria-hidden="true"
+        />
       </div>
       <input
         type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder={placeholder}
-        className="w-full pl-10 pr-10 py-3 bg-white border border-stone-200 rounded-2xl text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 shadow-xs text-sm transition-all"
+        placeholder={effectivePlaceholder}
+        className="w-full ps-11 sm:ps-12 pe-10 py-3.5 sm:py-4 bg-white/95 border border-stone-200/90 rounded-full text-stone-900 placeholder-stone-400/80 focus:outline-none focus:ring-2 focus:ring-terracotta focus:border-terracotta shadow-[0_2px_12px_rgba(23,21,19,0.04)] text-sm transition-all font-sans"
       />
       {value && (
         <button
@@ -62,21 +59,10 @@ export function SearchBar({
             setValue("");
             onSearch("");
           }}
-          className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-stone-400 hover:text-stone-600"
+          className="absolute inset-y-0 end-0 pe-4 flex items-center text-stone-400 hover:text-stone-700 cursor-pointer"
+          aria-label={t("filters.clearAll")}
         >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+          <X className="w-4 h-4" strokeWidth={2} aria-hidden="true" />
         </button>
       )}
     </div>
