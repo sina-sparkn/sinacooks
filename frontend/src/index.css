@@ -101,6 +101,15 @@
     font-family: var(--font-farsi);
     letter-spacing: normal;
   }
+
+  [dir="rtl"] .font-sans {
+    font-family: var(--font-farsi);
+    letter-spacing: normal;
+  }
+
+  [dir="rtl"] [class*="tracking-"] {
+    letter-spacing: normal;
+  }
 }
 
 /* Hide scrollbar utility */
@@ -144,6 +153,12 @@ html.lenis body {
   body.custom-cursor-active,
   body.custom-cursor-active * {
     cursor: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-line-wrapper {
+    overflow: visible !important;
   }
 }
 

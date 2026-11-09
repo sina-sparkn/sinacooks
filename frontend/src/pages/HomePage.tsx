@@ -27,8 +27,8 @@ export function HomePage() {
   const ArrowForward = isRTL ? ArrowLeft : ArrowRight;
 
   useEffect(() => {
-    document.title = "sinacooks | The Culinary Archive & Gastronomy Journal";
-  }, []);
+    document.title = t("titles.home");
+  }, [t]);
 
   const {
     data: featuredData,
@@ -67,8 +67,21 @@ export function HomePage() {
         const lines = headline.querySelectorAll(".hero-line-inner");
         tl.fromTo(
           lines,
-          { yPercent: 120, opacity: 0, rotateZ: 2 },
-          { yPercent: 0, opacity: 1, rotateZ: 0, stagger: 0.12, duration: 1.1 },
+          { yPercent: 125, opacity: 0, rotateZ: isRTL ? -1.5 : 2 },
+          {
+            yPercent: 0,
+            opacity: 1,
+            rotateZ: 0,
+            stagger: 0.12,
+            duration: 1.1,
+            onComplete: () => {
+              headline
+                .querySelectorAll<HTMLElement>(".hero-line-wrapper")
+                .forEach((el) => {
+                  el.style.overflow = "visible";
+                });
+            },
+          },
         );
       }
 
@@ -106,7 +119,7 @@ export function HomePage() {
     });
 
     return () => ctx.revert();
-  }, [preloaderDone]);
+  }, [preloaderDone, isRTL]);
 
   // Infinite marquee ribbon ticker
   useEffect(() => {
@@ -170,15 +183,15 @@ export function HomePage() {
             {/* Large Split Editorial Headline */}
             <h1
               ref={heroHeadlineRef}
-              className="font-serif text-5xl sm:text-7xl lg:text-8xl font-normal tracking-tight text-stone-900 leading-[1.02]"
+              className="font-serif text-5xl sm:text-7xl lg:text-8xl font-normal tracking-tight text-stone-900 leading-[1.08] sm:leading-[1.05] rtl:leading-[1.25] sm:rtl:leading-[1.2]"
             >
-              <span className="block overflow-hidden">
+              <span className="hero-line-wrapper block overflow-hidden pb-[0.3em] -mb-[0.3em]">
                 <span className="hero-line-inner block">
                   {t("home.heroLine1")}
                 </span>
               </span>
-              <span className="block overflow-hidden">
-                <span className="hero-line-inner block italic text-terracotta">
+              <span className="hero-line-wrapper block overflow-hidden pb-[0.3em] -mb-[0.3em]">
+                <span className="hero-line-inner block italic rtl:not-italic text-terracotta">
                   {t("home.heroLine2")}
                 </span>
               </span>

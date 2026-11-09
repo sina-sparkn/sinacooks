@@ -101,6 +101,9 @@ export function HorizontalCollection() {
     const track = trackRef.current;
     if (!section || !track) return;
 
+    // Reset track position before creating new tween
+    gsap.set(track, { clearProps: "transform" });
+
     const mm = gsap.matchMedia();
 
     mm.add("(min-width: 1024px)", () => {
@@ -109,7 +112,7 @@ export function HorizontalCollection() {
       };
 
       const tween = gsap.to(track, {
-        x: () => -getScrollAmount(),
+        x: () => (isRTL ? getScrollAmount() : -getScrollAmount()),
         ease: "none",
         scrollTrigger: {
           trigger: section,
@@ -127,8 +130,11 @@ export function HorizontalCollection() {
       };
     });
 
-    return () => mm.revert();
-  }, []);
+    return () => {
+      mm.revert();
+      gsap.set(track, { clearProps: "transform" });
+    };
+  }, [isRTL]);
 
   // Programmatic slide navigation
   const goToSlide = useCallback(
@@ -150,10 +156,11 @@ export function HorizontalCollection() {
       const cards = track.querySelectorAll(".collection-card");
       const targetCard = cards[targetIndex] as HTMLElement | undefined;
       if (targetCard) {
-        const targetLeft =
-          targetCard.offsetLeft -
-          (track.clientWidth - targetCard.clientWidth) / 2;
-        track.scrollTo({ left: Math.max(0, targetLeft), behavior: "smooth" });
+        targetCard.scrollIntoView({
+          behavior: "smooth",
+          inline: "center",
+          block: "nearest",
+        });
       }
 
       // 4. Release programmatic lock after scroll finishes (~450ms)
@@ -196,13 +203,15 @@ export function HorizontalCollection() {
     const cards = track.querySelectorAll(".collection-card");
     if (cards.length === 0) return;
 
-    const trackCenter = track.scrollLeft + track.clientWidth / 2;
+    const trackRect = track.getBoundingClientRect();
+    const trackCenter = trackRect.left + trackRect.width / 2;
     let closestIndex = 0;
     let minDistance = Infinity;
 
     cards.forEach((card, idx) => {
       const el = card as HTMLElement;
-      const cardCenter = el.offsetLeft + el.clientWidth / 2;
+      const cardRect = el.getBoundingClientRect();
+      const cardCenter = cardRect.left + cardRect.width / 2;
       const dist = Math.abs(trackCenter - cardCenter);
       if (dist < minDistance) {
         minDistance = dist;
@@ -275,7 +284,7 @@ export function HorizontalCollection() {
               <button
                 type="button"
                 onClick={goToPrev}
-                aria-label="Previous collection slide"
+                aria-label={isRTL ? "مجموعه قبلی" : "Previous collection slide"}
                 className="w-9 h-9 rounded-full border border-white/20 bg-white/10 text-white/80 hover:bg-terracotta hover:border-terracotta hover:text-white flex items-center justify-center active:scale-90 transition-all cursor-pointer shadow-xs select-none"
               >
                 <PrevArrow className="w-4 h-4" />
@@ -283,7 +292,7 @@ export function HorizontalCollection() {
               <button
                 type="button"
                 onClick={goToNext}
-                aria-label="Next collection slide"
+                aria-label={isRTL ? "مجموعه بعدی" : "Next collection slide"}
                 className="w-9 h-9 rounded-full border border-white/20 bg-white/10 text-white/80 hover:bg-terracotta hover:border-terracotta hover:text-white flex items-center justify-center active:scale-90 transition-all cursor-pointer shadow-xs select-none"
               >
                 <NextArrow className="w-4 h-4" />
@@ -346,7 +355,7 @@ export function HorizontalCollection() {
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 group-hover:bg-terracotta text-white font-mono text-[11px] font-semibold transition-all whitespace-nowrap shrink-0 shadow-xs">
                   <span>{t("home.exploreVolume")}</span>
-                  <ArrowUpRight className="w-3.5 h-3.5 text-terracotta group-hover:text-white transition-colors shrink-0" />
+                  <ArrowUpRight className="w-3.5 h-3.5 text-terracotta group-hover:text-white transition-colors shrink-0 rtl:-scale-x-100" />
                 </span>
               </div>
             </div>
@@ -370,7 +379,11 @@ export function HorizontalCollection() {
               triggerUserPause();
               goToSlide(idx);
             }}
-            aria-label={`Go to slide ${idx + 1}`}
+            aria-label={
+              isRTL
+                ? `رفتن به اسلاید ${formatNum(idx + 1)}`
+                : `Go to slide ${idx + 1}`
+            }
             className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
               idx === activeIndex
                 ? "w-8 bg-terracotta"

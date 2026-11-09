@@ -19,8 +19,16 @@ export function RecipeDetailPage() {
   const { data: recipe, isLoading, isError, refetch } = useRecipe(slug);
   const [userServings, setUserServings] = useState<number | null>(null);
   const [cookingModeOpen, setCookingModeOpen] = useState(false);
-  const { t, tCategory, tDifficulty, tTag, formatDuration, formatNum, isRTL } =
-    useTranslation();
+  const {
+    t,
+    tCategory,
+    tDifficulty,
+    tTag,
+    tUnit,
+    formatDuration,
+    formatNum,
+    isRTL,
+  } = useTranslation();
 
   const servings = userServings ?? recipe?.servings ?? 4;
 
@@ -31,9 +39,9 @@ export function RecipeDetailPage() {
 
   useEffect(() => {
     if (recipe) {
-      document.title = `${recipe.title} | sinacooks Culinary Archive`;
+      document.title = t("titles.recipeDetail", { title: recipe.title });
     }
-  }, [recipe]);
+  }, [recipe, t]);
 
   // Entrance motion & Scroll-driven parallax
   useEffect(() => {
@@ -219,7 +227,7 @@ export function RecipeDetailPage() {
             </div>
           )}
 
-          <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-normal text-stone-900 leading-[1.05]">
+          <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-normal text-stone-900 leading-[1.08] sm:leading-[1.06] rtl:leading-[1.25] sm:rtl:leading-[1.2]">
             {recipe.title}
           </h1>
 
@@ -305,7 +313,7 @@ export function RecipeDetailPage() {
             <div className="mt-3">
               <span className="font-serif text-3xl font-normal text-stone-900 block">
                 {recipe.nutrition?.calories
-                  ? `${formatNum(Math.round(recipe.nutrition.calories))} kcal`
+                  ? `${formatNum(Math.round(recipe.nutrition.calories))} ${tUnit("kcal")}`
                   : t("common.any")}
               </span>
               <span className="font-mono text-xs text-stone-500 block mt-1">
@@ -324,7 +332,7 @@ export function RecipeDetailPage() {
             <div className="flex items-center justify-between border-b border-stone-100 pb-4">
               <div>
                 <span className="font-mono text-xs uppercase tracking-widest text-terracotta font-semibold">
-                  Mise en Place
+                  {t("recipeDetail.miseEnPlace")}
                 </span>
                 <h2 className="font-serif text-2xl sm:text-3xl font-normal text-stone-900 mt-0.5">
                   {t("recipeDetail.ingredientsHeading")}

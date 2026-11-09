@@ -13,7 +13,7 @@ export function NutritionTable({ nutrition }: NutritionTableProps) {
     {
       label: t("recipeDetail.calories"),
       val: nutrition.calories,
-      unit: "kcal",
+      unit: tUnit("kcal"),
     },
     {
       label: t("recipeDetail.protein"),

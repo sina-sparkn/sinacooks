@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "../lib/gsap.js";
 import { useLenis } from "./useLenis.js";
-import { useTranslation } from "../features/i18n/I18nContext.js";
+import {
+  useTranslation,
+  toPersianDigits,
+} from "../features/i18n/I18nContext.js";
 
 interface PreloaderProps {
   onComplete: () => void;
@@ -78,7 +81,8 @@ export function Preloader({ onComplete }: PreloaderProps) {
         onUpdate: () => {
           const val = Math.round(progressObj.value);
           if (counterEl) {
-            counterEl.textContent = val < 10 ? `0${val}` : `${val}`;
+            const raw = val < 10 ? `0${val}` : `${val}`;
+            counterEl.textContent = isRTL ? toPersianDigits(raw) : raw;
           }
           if (ringEl) {
             const circumference = 2 * Math.PI * 40; // r=40
@@ -106,7 +110,7 @@ export function Preloader({ onComplete }: PreloaderProps) {
       document.body.style.overflow = "";
       startScroll();
     };
-  }, [isDone, onComplete, startScroll, stopScroll]);
+  }, [isDone, onComplete, startScroll, stopScroll, isRTL]);
 
   if (isDone) return null;
 
@@ -148,8 +152,8 @@ export function Preloader({ onComplete }: PreloaderProps) {
             />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center font-mono text-2xl font-semibold tracking-wider text-white">
-            <span ref={counterRef}>00</span>
-            <span className="text-xs text-white/50 ml-0.5">%</span>
+            <span ref={counterRef}>{isRTL ? "۰۰" : "00"}</span>
+            <span className="text-xs text-white/50 ms-0.5">%</span>
           </div>
         </div>
 

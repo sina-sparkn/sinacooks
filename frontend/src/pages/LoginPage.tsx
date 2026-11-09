@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -7,12 +7,10 @@ import { LogIn } from "lucide-react";
 import { useAuth } from "../features/auth/useAuth.js";
 import { useTranslation } from "../features/i18n/I18nContext.js";
 
-const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(1, "Password is required"),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
+interface LoginFormData {
+  email: string;
+  password: string;
+}
 
 export function LoginPage() {
   const { login, user } = useAuth();
@@ -23,11 +21,20 @@ export function LoginPage() {
   const [serverError, setServerError] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "Sign In | sinacooks Archive";
+    document.title = t("titles.login");
     if (user) {
       navigate(returnTo, { replace: true });
     }
-  }, [user, navigate, returnTo]);
+  }, [user, navigate, returnTo, t]);
+
+  const loginSchema = useMemo(
+    () =>
+      z.object({
+        email: z.string().email(t("auth.invalidEmail")),
+        password: z.string().min(1, t("auth.passwordRequired")),
+      }),
+    [t],
+  );
 
   const {
     register,
@@ -43,7 +50,7 @@ export function LoginPage() {
       await login(data);
       navigate(returnTo, { replace: true });
     } catch (err: any) {
-      setServerError(err.message || "Invalid email or password");
+      setServerError(err.message || t("auth.invalidCredentials"));
     }
   };
 

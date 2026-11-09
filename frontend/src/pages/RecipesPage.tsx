@@ -20,8 +20,8 @@ export function RecipesPage() {
   const { t, tCategory, formatNum } = useTranslation();
 
   useEffect(() => {
-    document.title = "Recipe Archive & Index | sinacooks";
-  }, []);
+    document.title = t("titles.recipes");
+  }, [t]);
 
   // Parse filters from URL
   const page = parseInt(searchParams.get("page") || "1", 10);
@@ -134,7 +134,7 @@ export function RecipesPage() {
         {/* Filter Sidebar - Sticky on desktop below floating header */}
         <div
           data-lenis-prevent
-          className="lg:sticky lg:top-24 lg:self-start lg:col-span-1 space-y-6 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto scrollbar-none pr-1"
+          className="lg:sticky lg:top-24 lg:self-start lg:col-span-1 space-y-6 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto scrollbar-none pe-1"
         >
           <SearchBar
             initialValue={q}

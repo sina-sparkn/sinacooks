@@ -12,8 +12,8 @@ export function FavoritesPage() {
   const { t, formatNum } = useTranslation();
 
   useEffect(() => {
-    document.title = "Personal Saved Archive | sinacooks";
-  }, []);
+    document.title = t("titles.favorites");
+  }, [t]);
 
   const { data: recipes = [], isLoading, isError, refetch } = useFavorites();
 

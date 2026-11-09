@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -7,13 +7,11 @@ import { UserPlus } from "lucide-react";
 import { useAuth } from "../features/auth/useAuth.js";
 import { useTranslation } from "../features/i18n/I18nContext.js";
 
-const registerSchema = z.object({
-  displayName: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters long"),
-});
-
-type RegisterFormData = z.infer<typeof registerSchema>;
+interface RegisterFormData {
+  displayName: string;
+  email: string;
+  password: string;
+}
 
 export function RegisterPage() {
   const { register: authRegister, user } = useAuth();
@@ -24,11 +22,21 @@ export function RegisterPage() {
   const [serverError, setServerError] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "Register Membership | sinacooks Archive";
+    document.title = t("titles.register");
     if (user) {
       navigate(returnTo, { replace: true });
     }
-  }, [user, navigate, returnTo]);
+  }, [user, navigate, returnTo, t]);
+
+  const registerSchema = useMemo(
+    () =>
+      z.object({
+        displayName: z.string().min(2, t("auth.nameMinLength")),
+        email: z.string().email(t("auth.invalidEmail")),
+        password: z.string().min(8, t("auth.passwordMinLength")),
+      }),
+    [t],
+  );
 
   const {
     register,
@@ -44,7 +52,7 @@ export function RegisterPage() {
       await authRegister(data);
       navigate(returnTo, { replace: true });
     } catch (err: any) {
-      setServerError(err.message || "Failed to create account");
+      setServerError(err.message || t("auth.registerFailed"));
     }
   };
 

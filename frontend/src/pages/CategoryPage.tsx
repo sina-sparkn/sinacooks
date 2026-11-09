@@ -19,9 +19,9 @@ export function CategoryPage() {
 
   useEffect(() => {
     if (categoryName) {
-      document.title = `${categoryName} | sinacooks Archive`;
+      document.title = t("titles.category", { category: categoryName });
     }
-  }, [categoryName]);
+  }, [categoryName, t]);
 
   const { data, isLoading, isError, refetch } = useRecipes({
     category: slug,
@@ -63,7 +63,7 @@ export function CategoryPage() {
         </div>
 
         {/* Decorative backdrop ring */}
-        <div className="absolute end-0 top-0 w-96 h-96 rounded-full border border-white/5 pointer-events-none translate-x-20 -translate-y-20" />
+        <div className="absolute end-0 top-0 w-96 h-96 rounded-full border border-white/5 pointer-events-none translate-x-20 rtl:-translate-x-20 -translate-y-20" />
       </div>
 
       {/* Content */}

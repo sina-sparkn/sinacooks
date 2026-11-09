@@ -36,7 +36,8 @@ export function FilterPanel({
   onApply,
   onReset,
 }: FilterPanelProps) {
-  const { t, tCategory, tDifficulty, tTag, formatNum } = useTranslation();
+  const { t, tCategory, tDifficulty, tTag, formatNum, isRTL } =
+    useTranslation();
   const tagsKey = selectedTags.join(",");
 
   // Store previous applied props to synchronize draft state when props change externally
@@ -251,10 +252,19 @@ export function FilterPanel({
           className="w-full accent-terracotta cursor-pointer"
         />
         <div className="flex justify-between font-mono text-[10px] text-stone-400">
-          <span>{formatNum(5)}m</span>
-          <span>{formatNum(30)}m</span>
-          <span>{formatNum(60)}m</span>
-          <span>{formatNum(120)}m+</span>
+          <span>
+            {formatNum(5)} {t("common.mins")}
+          </span>
+          <span>
+            {formatNum(30)} {t("common.mins")}
+          </span>
+          <span>
+            {formatNum(60)} {t("common.mins")}
+          </span>
+          <span>
+            {isRTL ? `+${formatNum(120)}` : `${formatNum(120)}+`}{" "}
+            {t("common.mins")}
+          </span>
         </div>
       </div>
 
